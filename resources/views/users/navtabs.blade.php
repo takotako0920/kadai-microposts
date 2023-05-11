@@ -4,6 +4,13 @@
         TimeLine
         <div class="badge ml-1">{{ $user->microposts_count }}</div>
     </a>
+    
+    {{-- お気に入り一覧タブ --}}
+    <a href="{{ route('users.favorites', $user->id) }}" class="tab tab-lifted grow {{ Request::routeIs('users.favorites') ? 'tab-active' : '' }}">
+        Favorites
+        <div class="badge ml-1">{{ $user->favorites_count }}</div>
+    </a>
+    
     {{-- フォロー一覧タブ --}}
     <a href="{{ route('users.followings', $user->id) }}" class="tab tab-lifted grow {{ Request::routeIs('users.followings') ? 'tab-active' : '' }}">
         Followings

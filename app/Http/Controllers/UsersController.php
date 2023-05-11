@@ -4,17 +4,22 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;                        // 追加
-use App\Models\User;                                        // 追加
+use App\Models\User;
+use App\Models\Micropost;
 
 class UsersController extends Controller
 {
     public function index()                                 // 追加       
-    {                                                       // 追加
+    {   
+        // ログインしているユーザのidを取得
+        $user = \Auth::user();
+        
         // ユーザ一覧をidの降順で取得
         $users = User::orderBy('id', 'desc')->paginate(10); // 追加
 
         // ユーザ一覧ビューでそれを表示
         return view('users.index', [                        // 追加
+            'user' => $user,
             'users' => $users,                              // 追加
         ]);                                                 // 追加
     }                                                       // 追加
@@ -28,7 +33,7 @@ class UsersController extends Controller
         $user->loadRelationshipCounts();
         
         // ユーザーの投稿一覧を作成日時の降順で取得
-        $microposts = $user->microposts()->orderBy('created_at', 'desc')->paginate(10);
+        $microposts = $user->feed_microposts()->orderBy('created_at', 'desc')->paginate(10);
 
         // ユーザ詳細ビューでそれを表示
         return view('users.show', [
@@ -82,6 +87,29 @@ class UsersController extends Controller
         return view('users.followers', [
             'user' => $user,
             'users' => $followers,
+        ]);
+    }
+    /**
+     * ユーザのfavorite一覧ページを表示するアクション。
+     *
+     * @param  $id  マイクロポストのid
+     * @return \Illuminate\Http\Response
+     */
+    public function favorites($id)
+    {
+        // idの値でマイクロポストを検索して取得
+        $user = User::findOrFail($id);
+
+        // 関係するモデルの件数をロード
+        $user->loadRelationshipCounts();
+
+        // ユーザのfavorite一覧を取得
+        $favorites = $user->favorites()->paginate(10);
+
+        // favorite一覧ビューでそれらを表示
+        return view('users.favorites', [
+            'user' => $user,
+            'favorites' => $favorites,
         ]);
     }
 }
